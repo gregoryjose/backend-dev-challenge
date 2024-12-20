@@ -1,0 +1,74 @@
+{
+  "page": 3,
+  "per_page": 10,
+  "total": 26,
+  "total_pages": 3,
+  "data": [
+    {
+      "Title": "American Sniper",
+      "Year": "2014",
+      "Rated": "R",
+      "Released": "16 Jan 2015",
+      "Runtime": "133 min",
+      "Genre": "Action, Biography, Drama",
+      "Director": "Clint Eastwood",
+      "Writer": "Jason Hall, Chris Kyle, Scott McEwen",
+      "Actors": "Bradley Cooper, Sienna Miller, Kyle Gallner"
+    },
+    {
+      "Title": "Magic in the Moonlight",
+      "Year": "2014",
+      "Rated": "PG-13",
+      "Released": "15 Aug 2014",
+      "Runtime": "97 min",
+      "Genre": "Comedy, Drama, Romance",
+      "Director": "Woody Allen",
+      "Writer": "Woody Allen",
+      "Actors": "Colin Firth, Emma Stone, Marcia Gay Harden"
+    },
+    {
+      "Title": "The Irishman",
+      "Year": "2019",
+      "Rated": "R",
+      "Released": "27 Nov 2019",
+      "Runtime": "209 min",
+      "Genre": "Biography, Crime, Drama",
+      "Director": "Martin Scorsese",
+      "Writer": "Steven Zaillian, Charles Brandt",
+      "Actors": "Robert De Niro, Al Pacino, Joe Pesci"
+    },
+    {
+      "Title": "Julieta",
+      "Year": "2016",
+      "Rated": "R",
+      "Released": "21 Dec 2016",
+      "Runtime": "99 min",
+      "Genre": "Drama, Mystery, Romance",
+      "Director": "Pedro Almodóvar",
+      "Writer": "Pedro Almodóvar, Alice Munro",
+      "Actors": "Emma Suárez, Adriana Ugarte, Daniel Grao"
+    },
+    {
+      "Title": "I'm So Excited!",
+      "Year": "2013",
+      "Rated": "R",
+      "Released": "08 Mar 2013",
+      "Runtime": "90 min",
+      "Genre": "Comedy, Musical",
+      "Director": "Pedro Almodóvar",
+      "Writer": "Pedro Almodóvar",
+      "Actors": "Javier Cámara, Pepa Charro, Cecilia Roth"
+    },
+    {
+      "Title": "The Visit",
+      "Year": "2015",
+      "Rated": "PG-13",
+      "Released": "11 Sep 2015",
+      "Runtime": "94 min",
+      "Genre": "Horror, Mystery, Thriller",
+      "Director": "M. Night Shyamalan",
+      "Writer": "M. Night Shyamalan",
+      "Actors": "Olivia DeJonge, Ed Oxenbould, Deanna Dunagan"
+    }
+  ]
+}

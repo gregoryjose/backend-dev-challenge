@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="directa24-back-end-dev-challenge:Web exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/directa24_back_end_dev_challenge_Web_exploded</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="directa24-back-end-dev-challenge/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="directa24-back-end-dev-challenge" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>
