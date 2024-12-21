@@ -4,6 +4,8 @@ import com.directa24.main.challenge.api.MovieApiClient;
 import com.directa24.main.challenge.dto.MovieDTO;
 import com.directa24.main.challenge.dto.MoviePageDTO;
 import com.directa24.main.challenge.service.DirectorService;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -27,7 +29,7 @@ public class DirectorServiceImpl implements DirectorService {
         boolean hasMorePages;
 
         do {
-            MoviePageDTO pageData = movieApiClient.fetchMovies(page);
+            MoviePageDTO pageData = fetchMoviesWithRetry(page);
             if (pageData == null || pageData.getData() == null) break;
 
             updateDirectorMovieCount(pageData.getData(), directorMovieCount);
@@ -42,6 +44,18 @@ public class DirectorServiceImpl implements DirectorService {
                 .map(Map.Entry::getKey)
                 .sorted()
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Fetch movies with retry mechanism.
+     */
+    @Retryable(
+            retryFor = {Exception.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000, multiplier = 2) // 1-second delay with exponential backoff
+    )
+    private MoviePageDTO fetchMoviesWithRetry(int page) {
+        return movieApiClient.fetchMovies(page);
     }
 
     private void updateDirectorMovieCount(List<MovieDTO> movies, Map<String, Integer> directorMovieCount) {
