@@ -26,15 +26,15 @@ public class DirectorServiceImpl implements DirectorService {
     }
 
     /**
-     * Retrieves directors with movie counts above the specified threshold.
+     * Retrieves a list of directors who directed more movies than the given threshold.
      *
-     * <p>Processes paginated API data to compute movie counts for directors
-     * and returns a sorted list of directors whose movie counts exceed the
-     * threshold. Retries the operation up to three times for API failures.</p>
+     * <p>Fetches and processes paginated API data to compute movie counts per director.
+     * Returns an alphabetically sorted list of directors whose movie counts strictly exceed the threshold.
+     * Retries API calls up to three times with exponential backoff in case of failures.</p>
      *
-     * @param threshold minimum number of movies a director must have directed
+     * @param threshold the minimum movie count a director must exceed to be included
      * @return a sorted {@link List} of director names, or an empty list if none qualify
-     * @throws RuntimeException if all retry attempts to fetch API data fail
+     * @throws RuntimeException if all retry attempts fail
      */
     @Override
     @Retryable(
