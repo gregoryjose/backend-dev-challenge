@@ -26,15 +26,22 @@ public class DirectorServiceImpl implements DirectorService {
     }
 
     /**
-     * Retrieves a list of directors who directed more movies than the specified threshold.
+     * Retrieves directors with movie counts above the specified threshold.
      *
-     * <p>Processes paginated data from a downstream API, counts movies per director, and
-     * returns a sorted list of directors whose movie count exceeds the threshold.</p>
+     * <p>Processes paginated API data to compute movie counts for directors
+     * and returns a sorted list of directors whose movie counts exceed the
+     * threshold. Retries the operation up to three times for API failures.</p>
      *
-     * @param threshold the minimum number of movies a director must have directed.
-     * @return a sorted {@link List} of director names in alphabetical order, or an empty list if none meet the threshold.
+     * @param threshold minimum number of movies a director must have directed
+     * @return a sorted {@link List} of director names, or an empty list if none qualify
+     * @throws RuntimeException if all retry attempts to fetch API data fail
      */
     @Override
+    @Retryable(
+            retryFor = {RuntimeException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
     public List<String> getDirectors(int threshold) {
         LOGGER.info("Fetching directors with a threshold of {} movies.", threshold);
 
@@ -43,25 +50,20 @@ public class DirectorServiceImpl implements DirectorService {
         boolean hasMorePages;
 
         do {
-            try {
-                LOGGER.debug("Fetching page {} from the downstream API.", page);
+            LOGGER.debug("Fetching page {} from the downstream API.", page);
 
-                MoviePageDTO pageData = fetchMoviesWithRetry(page);
+            MoviePageDTO pageData = movieApiClient.fetchMovies(page);
 
-                if (pageData == null || pageData.getData() == null) {
-                    LOGGER.warn("No data found on page {}.", page);
-                    break;
-                }
-
-                updateDirectorMovieCount(pageData.getData(), directorMovieCount);
-
-                int totalPages = pageData.getTotalPages();
-                hasMorePages = page < totalPages;
-                page++;
-            } catch (Exception e) {
-                LOGGER.error("Error fetching page {}: {}", page, e.getMessage());
-                throw new RuntimeException("Failed to fetch directors due to downstream API errors.", e);
+            if (pageData == null || pageData.getData() == null) {
+                LOGGER.warn("No data found on page {}.", page);
+                break;
             }
+
+            updateDirectorMovieCount(pageData.getData(), directorMovieCount);
+
+            int totalPages = pageData.getTotalPages();
+            hasMorePages = page < totalPages;
+            page++;
         } while (hasMorePages);
 
         LOGGER.debug("Fetched {} directors with {} movies.", directorMovieCount, threshold);
@@ -77,25 +79,11 @@ public class DirectorServiceImpl implements DirectorService {
     }
 
     /**
-     * Fetches a page of movies from the downstream API with a retry mechanism.
+     * Updates movie counts for directors based on the provided movie list.
      *
-     * <p>Attempts to call the {@link MovieApiClient#fetchMovies(int)} method up to three times
-     * in case of an exception, using a 1-second delay between retries with exponential backoff.</p>
-     *
-     * @param page the page number to fetch from the downstream API.
-     * @return a {@link MoviePageDTO} containing the movies for the specified page.
-     * @throws Exception if all retry attempts fail or if an error occurs during the API call.
+     * @param movies the list of {@link MovieDTO} objects
+     * @param directorMovieCount the map tracking movie counts per director
      */
-    @Retryable(
-            retryFor = {Exception.class},
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 1000, multiplier = 2) // 1-second delay with exponential backoff
-    )
-    private MoviePageDTO fetchMoviesWithRetry(int page) {
-        LOGGER.debug("Attempting to fetch movies for page {} with retry mechanism.", page);
-        return movieApiClient.fetchMovies(page);
-    }
-
     private void updateDirectorMovieCount(List<MovieDTO> movies, Map<String, Integer> directorMovieCount) {
         for (MovieDTO movie : movies) {
             String director = movie.getDirector();

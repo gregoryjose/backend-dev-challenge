@@ -7,6 +7,9 @@ public class MovieDTO {
     @JsonProperty("Director")
     private String director;
 
+    public MovieDTO(String director) {
+        this.director = director;
+    }
 
     public String getDirector() {
         return director;

@@ -10,6 +10,11 @@ public class MoviePageDTO {
     private int totalPages;
     private List<MovieDTO> data;
 
+    public MoviePageDTO(List<MovieDTO> data, int totalPages) {
+        this.totalPages = totalPages;
+        this.data = data;
+    }
+
     public int getTotalPages() {
         return totalPages;
     }
