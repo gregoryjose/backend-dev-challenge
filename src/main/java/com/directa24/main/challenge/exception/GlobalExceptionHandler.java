@@ -28,6 +28,23 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle IllegalArgumentException for bad input.
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle any other unhandled exceptions.
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
+        return buildErrorResponse("Something went wrong. Please try again later.", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
+    /**
      * Utility method to build a generic error response without a timestamp.
      */
     private ResponseEntity<Map<String, Object>> buildErrorResponse(String message, HttpStatus status) {

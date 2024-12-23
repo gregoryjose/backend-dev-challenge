@@ -4,6 +4,8 @@ import com.directa24.main.challenge.api.MovieApiClient;
 import com.directa24.main.challenge.dto.MovieDTO;
 import com.directa24.main.challenge.dto.MoviePageDTO;
 import com.directa24.main.challenge.service.DirectorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 @Service
 public class DirectorServiceImpl implements DirectorService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DirectorServiceImpl.class);
     private final MovieApiClient movieApiClient;
 
     public DirectorServiceImpl(MovieApiClient movieApiClient) {
@@ -33,26 +36,44 @@ public class DirectorServiceImpl implements DirectorService {
      */
     @Override
     public List<String> getDirectors(int threshold) {
+        LOGGER.info("Fetching directors with a threshold of {} movies.", threshold);
+
         Map<String, Integer> directorMovieCount = new HashMap<>();
         int page = 1;
         boolean hasMorePages;
 
         do {
-            MoviePageDTO pageData = fetchMoviesWithRetry(page);
-            if (pageData == null || pageData.getData() == null) break;
+            try {
+                LOGGER.debug("Fetching page {} from the downstream API.", page);
 
-            updateDirectorMovieCount(pageData.getData(), directorMovieCount);
+                MoviePageDTO pageData = fetchMoviesWithRetry(page);
 
-            int totalPages = pageData.getTotalPages();
-            hasMorePages = page < totalPages;
-            page++;
+                if (pageData == null || pageData.getData() == null) {
+                    LOGGER.warn("No data found on page {}.", page);
+                    break;
+                }
+
+                updateDirectorMovieCount(pageData.getData(), directorMovieCount);
+
+                int totalPages = pageData.getTotalPages();
+                hasMorePages = page < totalPages;
+                page++;
+            } catch (Exception e) {
+                LOGGER.error("Error fetching page {}: {}", page, e.getMessage());
+                throw new RuntimeException("Failed to fetch directors due to downstream API errors.", e);
+            }
         } while (hasMorePages);
 
-        return directorMovieCount.entrySet().stream()
+        LOGGER.debug("Fetched {} directors with {} movies.", directorMovieCount, threshold);
+
+        List<String> directors = directorMovieCount.entrySet().stream()
                 .filter(entry -> entry.getValue() > threshold)
                 .map(Map.Entry::getKey)
                 .sorted()
                 .collect(Collectors.toList());
+
+        LOGGER.info("Successfully fetched {} directors exceeding the threshold.", directors.size());
+        return directors;
     }
 
     /**
@@ -71,6 +92,7 @@ public class DirectorServiceImpl implements DirectorService {
             backoff = @Backoff(delay = 1000, multiplier = 2) // 1-second delay with exponential backoff
     )
     private MoviePageDTO fetchMoviesWithRetry(int page) {
+        LOGGER.debug("Attempting to fetch movies for page {} with retry mechanism.", page);
         return movieApiClient.fetchMovies(page);
     }
 
@@ -79,5 +101,6 @@ public class DirectorServiceImpl implements DirectorService {
             String director = movie.getDirector();
             directorMovieCount.put(director, directorMovieCount.getOrDefault(director, 0) + 1);
         }
+        LOGGER.debug("Updated director movie counts. Current size: {}", directorMovieCount.size());
     }
 }
