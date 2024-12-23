@@ -17,7 +17,7 @@ public class Main {
 
    public static void main(String[] args) {
       try {
-         List<String> directors = getDirectors(3);
+         List<String> directors = getDirectors(4);
          System.out.println(String.join("\n", directors));
       } catch (Exception e) {
          System.err.println("Error fetching directors: " + e.getMessage());
