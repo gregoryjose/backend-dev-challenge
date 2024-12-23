@@ -22,10 +22,13 @@ public class DirectorController {
     }
 
     /**
-     * Fetch directors who meet the threshold of movie counts.
+     * Retrieves a list of directors who have directed more than the specified number of movies.
      *
-     * @param threshold The minimum number of movies a director must have directed.
-     * @return A JSON response with the list of directors.
+     * <p>This endpoint fetches directors whose movie count exceeds the given threshold.
+     * The response is returned as a JSON object containing the list of directors.</p>
+     *
+     * @param threshold the minimum number of movies a director must have directed (must be 0 or greater).
+     * @return a {@link ResponseEntity} containing a JSON object with the list of directors.
      */
     @GetMapping
     public ResponseEntity<Map<String, List<String>>> getDirectors(

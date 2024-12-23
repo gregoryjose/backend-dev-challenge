@@ -22,6 +22,15 @@ public class DirectorServiceImpl implements DirectorService {
         this.movieApiClient = movieApiClient;
     }
 
+    /**
+     * Retrieves a list of directors who directed more movies than the specified threshold.
+     *
+     * <p>Processes paginated data from a downstream API, counts movies per director, and
+     * returns a sorted list of directors whose movie count exceeds the threshold.</p>
+     *
+     * @param threshold the minimum number of movies a director must have directed.
+     * @return a sorted {@link List} of director names in alphabetical order, or an empty list if none meet the threshold.
+     */
     @Override
     public List<String> getDirectors(int threshold) {
         Map<String, Integer> directorMovieCount = new HashMap<>();
@@ -47,7 +56,14 @@ public class DirectorServiceImpl implements DirectorService {
     }
 
     /**
-     * Fetch movies with retry mechanism.
+     * Fetches a page of movies from the downstream API with a retry mechanism.
+     *
+     * <p>Attempts to call the {@link MovieApiClient#fetchMovies(int)} method up to three times
+     * in case of an exception, using a 1-second delay between retries with exponential backoff.</p>
+     *
+     * @param page the page number to fetch from the downstream API.
+     * @return a {@link MoviePageDTO} containing the movies for the specified page.
+     * @throws Exception if all retry attempts fail or if an error occurs during the API call.
      */
     @Retryable(
             retryFor = {Exception.class},
